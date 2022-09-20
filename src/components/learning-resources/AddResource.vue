@@ -1,17 +1,34 @@
 <template>
+  <base-dialog v-if="inputIsInvalid" title="Invalid Input" @close="closeDialog">
+    <template #default>
+      <p>Unfortunately, at least one input is invalid.</p>
+      <p>
+        Please check all inputs and make sure enter at least a few characters
+        into each input field.
+      </p>
+    </template>
+    <template #actions>
+      <base-button @click="closeDialog">Okay</base-button>
+    </template>
+  </base-dialog>
   <base-card>
-    <form>
+    <form @submit.prevent="submitData">
       <div class="form-control">
         <label for="title">Title</label>
-        <input type="text" id="title" name="title" />
+        <input type="text" id="title" name="title" ref="titleRef" />
       </div>
       <div class="form-control">
         <label for="description">Description</label>
-        <textarea id="description" name="description" rows="3"></textarea>
+        <textarea
+          id="description"
+          name="description"
+          rows="3"
+          ref="descRef"
+        ></textarea>
       </div>
       <div class="form-control">
         <label for="link">Link</label>
-        <input id="link" name="link" type="url" />
+        <input id="link" name="link" type="url" ref="linkRef" />
       </div>
       <div>
         <base-button type="submit">Add Resource</base-button>
@@ -19,6 +36,39 @@
     </form>
   </base-card>
 </template>
+
+<script>
+import BaseDialog from '../UI/BaseDialog.vue';
+export default {
+  components: { BaseDialog },
+  inject: ['addResource'],
+  data() {
+    return {
+      inputIsInvalid: false,
+    };
+  },
+  methods: {
+    submitData() {
+      const enteredTitle = this.$refs.titleRef.value;
+      const enteredDesc = this.$refs.descRef.value;
+      const enteredLink = this.$refs.linkRef.value;
+
+      if (
+        enteredTitle.trim() === '' ||
+        enteredDesc.trim() === '' ||
+        enteredLink.trim() === ''
+      ) {
+        this.inputIsInvalid = true;
+        return;
+      }
+      this.addResource(enteredTitle, enteredDesc, enteredLink);
+    },
+    closeDialog() {
+      this.inputIsInvalid = false;
+    },
+  },
+};
+</script>
 
 <style scoped>
 label {
